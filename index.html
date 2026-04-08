@@ -1,0 +1,133 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            text-align: center;
+            color: white;
+            padding: 50px;
+        }
+
+        .container {
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 15px;
+            width: 350px;
+            margin: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            margin: 15px 0;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        img {
+            margin-top: 15px;
+            width: 150px;
+            border-radius: 10px;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #loading {
+            display: none;
+            margin-top: 10px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🧠 Image Classification App</h1>
+
+<div class="container">
+    <h2>Upload Image</h2>
+
+    <input type="file" id="fileInput" accept="image/*"><br>
+
+    <button onclick="predict()">Predict</button>
+
+    <div id="loading">⏳ Predicting...</div>
+
+    <img id="preview" src="" alt="" style="display:none;">
+
+    <div id="result"></div>
+</div>
+
+<script>
+const API_URL ="https://testproject-dwcq.onrender.com/predict"; // 🔥 replace this
+
+function predict() {
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an image!");
+        return;
+    }
+
+    // Show preview
+    const preview = document.getElementById("preview");
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("result").innerText = "";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch(API_URL, {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("loading").style.display = "none";
+
+        if (data.error) {
+            document.getElementById("result").innerText = "❌ Error: " + data.error;
+        } else {
+            document.getElementById("result").innerHTML =
+                "✅ Prediction: " + data.predicted_digit +
+                "<br>Confidence: " + (data.confidence * 100).toFixed(2) + "%";
+        }
+    })
+    .catch(error => {
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("result").innerText = "❌ Failed to connect API";
+    });
+}
+</script>
+
+</body>
+</html>
+```
